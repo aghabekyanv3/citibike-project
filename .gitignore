@@ -1,3 +1,5 @@
-"" 
-"# Custom" 
-"citibike_venv/" 
+data/
+*.csv
+*.csv.gz
+*.parquet
+*.zip

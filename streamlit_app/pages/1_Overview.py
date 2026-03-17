@@ -103,8 +103,8 @@ plotly_layout_defaults(fig_mom, height=280)
 st.plotly_chart(fig_mom, use_container_width=True)
 
 callout(
-    "📈 <strong>Peak:</strong> Sep 2025 — 115,706 trips. "
-    "<strong>Winter floor:</strong> Feb 2025 — 45,152 trips (~3:1 seasonal amplitude). "
+    "📈 <strong>Peak:</strong> Sep 2025 — 115,258 trips. "
+    "<strong>Winter floor:</strong> Feb 2025 — 45,044 trips (~3:1 seasonal amplitude). "
     "The sharpest MoM declines occur Oct→Nov and Jan→Feb as cold weather sets in."
 )
 
@@ -145,7 +145,7 @@ plotly_layout_defaults(fig_cas, height=280)
 st.plotly_chart(fig_cas, use_container_width=True)
 
 callout(
-    "Casual share peaks in summer (potentially 30–35%) and collapses in winter (10–15%). "
+    "Casual share peaks in summer (potentially 25–30%) and collapses in winter (10–15%). "
     "This seasonal swing is larger than for members, who ride more consistently year-round."
 )
 

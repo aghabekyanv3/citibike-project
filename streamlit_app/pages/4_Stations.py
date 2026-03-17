@@ -28,7 +28,8 @@ with st.sidebar:
     top_n = st.slider("Top N stations", 10, 30, 20, step=5)
 
 # ── TRIP TYPE CLASSIFICATION ──────────────────────────────────────────
-if "trip_type" not in df.columns and "start_network" in df.columns:
+# ── TRIP TYPE CLASSIFICATION ──────────────────────────────────────────
+if "start_network" in df.columns:
     def _trip_type(row):
         s = str(row["start_network"])
         e = str(row["end_network"])
@@ -37,7 +38,7 @@ if "trip_type" not in df.columns and "start_network" in df.columns:
         if s == "jersey_city" and e == "hoboken":      return "JC → HB"
         if s == "hoboken"     and e == "jersey_city":  return "HB → JC"
         return "Other"
-    df["trip_type"] = df.apply(_trip_type, axis=1).astype("category")
+    df["trip_type"] = df.apply(_trip_type, axis=1).astype("category")  # ← always overwrite
 
 # ── TABS ──────────────────────────────────────────────────────────────
 tab1, tab2, tab3 = st.tabs(["📊 Top Stations & Net Flow", "🔍 Station Explorer", "🗺 Network Analysis"])
@@ -85,7 +86,7 @@ with tab1:
     arrivals   = valid_ends.groupby("end_station_name", observed=True).size().rename("arrivals")
 
     flow = pd.concat([departures, arrivals], axis=1).fillna(0)
-    flow["net_flow"]    = flow["departures"] - flow["arrivals"]
+    flow["net_flow"]    = flow["arrivals"] - flow["departures"]   # ← was departures − arrivals
     flow["total_trips"] = flow["departures"] + flow["arrivals"]
 
     top_imbalanced = (
@@ -98,11 +99,11 @@ with tab1:
         x=top_imbalanced["net_flow"],
         y=top_imbalanced.index,
         orientation="h",
-        marker_color=[COLORS["accent"] if v < 0 else COLORS["positive"] for v in top_imbalanced["net_flow"]],
+        marker_color=[COLORS["accent"] if v > 0 else COLORS["positive"] for v in top_imbalanced["net_flow"]],  # ← was v < 0
         hovertemplate="<b>%{y}</b><br>Net flow: %{x:+,}<extra></extra>",
     ))
     fig_flow.add_vline(x=0, line_color=COLORS["muted"], line_width=1.5, line_dash="dot")
-    fig_flow.update_layout(title="Top 20 Most Imbalanced Stations — Net Flow (departures − arrivals)")
+    fig_flow.update_layout(title="Top 20 Most Imbalanced Stations — Net Flow (arrivals − departures)")  # ← updated label
     plotly_layout_defaults(fig_flow, height=520)
     st.plotly_chart(fig_flow, use_container_width=True)
 

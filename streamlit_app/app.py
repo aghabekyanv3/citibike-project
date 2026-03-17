@@ -96,6 +96,7 @@ st.markdown(
     | **5 · Map** | Geospatial trip origins (hexbin 3D) and station bubble map |
     | **6 · Rideable Type** | Electric vs classic — monthly share, hourly usage, duration, speed |
     | **7 · Weather** | Temp, rain, snow, wind impact on daily ridership (requires `daily_weather_merged.csv`) |
+    | **8 · Rebalancing** | Station surplus & deficit, hourly cumulative flow, seasonal schedules, pairing map |
     """
 )
 

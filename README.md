@@ -133,6 +133,8 @@ Remaining missing values are structurally expected: `end_station_id` (0.14%) and
 
 ### 4. Exploratory Data Analysis (`03_eda.ipynb`)
 
+### 4. Exploratory Data Analysis (`03_eda.ipynb`)
+
 All 12 EDA figures saved to `figures/`:
 
 | Figure | Description |
@@ -149,6 +151,13 @@ All 12 EDA figures saved to `figures/`:
 | `10_station_net_flow` | Top 20 most imbalanced stations (departures − arrivals) |
 | `11_rideable_type_analysis` | Electric share by month, hourly by bike type, duration by bike type |
 | `12_network_analysis` | Trip type pie + cross-network (JC↔HB) hourly flow lines |
+| `bimodal_01_kde_peaks` | KDE with detected peaks for casual and member distance distributions |
+| `bimodal_02_gmm_components` | GMM fit (1–3 components, BIC selection) for each user type |
+| `bimodal_03_casual_profiles` | Two GMM-split casual populations: distance, hourly demand, weekend share |
+
+The casual distance distribution is weakly bimodal statistically (GMM BIC improves from 514k to 457k with 2 components) but the two sub-populations show negligible behavioural differences — same bike preference, weekend share, and rush-hour share. The member/casual split remains the more structurally meaningful segmentation.
+
+Station net flow analysis identifies **Grove St PATH** as the single most imbalanced station (+3,108 net arrivals overall), followed by both Hoboken Terminal entrances. Residential neighbourhood stations are the mirror: chronic net exporters. This commuter-drain pattern provides the empirical foundation for the rebalancing analysis in `04_rebalancing.ipynb`.
 
 ### 5. Weather Integration (`03_eda.ipynb`)
 
@@ -158,9 +167,46 @@ Engineered features: `temp_avg` (imputed where TAVG missing), `is_rain` (precipi
 
 Trip data aggregated to daily level (wide format: one row per date) and left-joined on `date`. Output: `data/daily_weather_merged.csv`.
 
-### 6. Streamlit Dashboard (`streamlit_app/`)
+### 6. Rebalancing Analysis (`04_rebalancing.ipynb`)
 
-7-page interactive dashboard built with Plotly + pydeck, styled in Citi Bike brand colours (`#0055A5` / `#00AEEF`). All data loaded once via `@st.cache_data` — subsequent interactions operate on the cached 1.09 M-row dataframe.
+Builds on the station net flow findings to produce an operational rebalancing plan. All outputs go to `figures/reb_*.png` and `data/rebalancing_*.csv`.
+
+| Figure | Description |
+|---|---|
+| `reb_01b_bike_type_flow` | Net flow per day split by electric vs classic — top 15 stations |
+| `reb_01b_rider_type_flow` | Net flow per day split by member vs casual — top 15 stations |
+| `reb_01b_season_flow` | Net flow per day by season — top 15 stations |
+| `reb_01b_hourly_by_rider_type` | Cumulative net flow by rider type at the worst station |
+| `reb_02_cumulative_flow_top10` | Hourly cumulative net flow (average weekday) — top 10 stations |
+| `reb_02b_cumulative_flow_by_season` | Same, with all 4 seasons overlaid per panel |
+| `reb_02c_worst_station_by_season` | Full seasonal detail with annotations for the single worst station |
+| `reb_03_heatmap_overall` | Station × hour risk heatmap — average weekday, all seasons |
+| `reb_03b_heatmap_by_season` | Same heatmap, one panel per season |
+| `reb_03c_heatmap_summer_minus_winter` | Seasonal delta heatmap: Summer − Winter |
+| `reb_04_weekday_vs_weekend_overall` | Net flow per day: weekday vs weekend, all seasons combined |
+| `reb_04b_weekday_vs_weekend_by_season` | Same comparison, one panel per season |
+| `reb_04c_weekday_by_season` | Weekday net flow across all 4 seasons — top 20 stations |
+| `reb_05_weather_overall` | Daily net flow vs temperature at worst surplus/deficit station |
+| `reb_05b_weather_by_season_scatter` | Same scatter, coloured by season with per-season trend lines |
+| `reb_05c_rain_impact_by_season` | Rain impact box plots by season for surplus and deficit station |
+| `reb_05d_temp_category_by_season` | Avg net flow by season × temperature category (Freezing/Cold/Mild/Warm) |
+| `reb_06_priority_schedule_overall` | Priority schedule bar chart — all seasons combined |
+| `reb_06_{season}_priority_schedule` | Per-season priority schedules (4 charts) |
+| `reb_06_severity_by_season_comparison` | Peak severity by season — top 15 stations |
+| `reb_06_action_hour_by_season` | When to intervene: action hour per station by season |
+| `reb_07_pairing_map_overall` | Pickup → delivery route map with distances — all seasons |
+| `reb_07_{season}_pairing_map` | Per-season pairing maps (4 charts) |
+| `reb_07_pairing_distance_by_season` | Truck distance per pairing by season |
+
+**Priority schedule** (`data/rebalancing_priority_schedule_*.csv`) — one file overall and one per season. Each row gives a station its `role` (pickup or delivery), `severity` (peak average cumulative imbalance in bikes), and `action_by` (the hour at which the imbalance peaks and intervention is most urgent).
+
+**Donor/recipient pairing** uses the Hungarian algorithm (globally optimal minimum-distance assignment) to match surplus stations to deficit stations. A stability table checks whether the same pairs hold across seasons; a distance comparison chart shows whether the truck travels further in some seasons due to shifting imbalance patterns.
+
+**Summary CSV** (`data/rebalancing_summary_by_season.csv`) — cross-season comparison of surplus/deficit station counts, worst station per role, earliest intervention times, and total system-level imbalance in bikes per day.
+
+### 7. Streamlit Dashboard (`streamlit_app/`)
+
+8-page interactive dashboard built with Plotly + pydeck, styled in Citi Bike brand colours (`#0055A5` / `#00AEEF`). All data loaded once via `@st.cache_data` — subsequent interactions operate on the cached 1.09 M-row dataframe.
 
 | Page | Contents |
 |---|---|

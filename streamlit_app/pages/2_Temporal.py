@@ -44,17 +44,21 @@ heatmap_pivot = (
     .size().unstack(fill_value=0).reindex(DAY_ORDER)
 )
 
+hour_labels = [f"{h:02d}:00" for h in heatmap_pivot.columns]
+customdata = np.tile(hour_labels, (len(heatmap_pivot), 1))
+
 fig_heat = go.Figure(go.Heatmap(
     z=heatmap_pivot.values,
     x=list(heatmap_pivot.columns),
     y=list(heatmap_pivot.index),
+    customdata=customdata,
     colorscale=[
         [0.0, "#EBF4FF"],
         [0.3, COLORS["secondary"]],
         [0.7, COLORS["primary"]],
         [1.0, "#001F4D"],
     ],
-    hovertemplate="<b>%{y}</b> at %{x}:00<br>Trips: %{z:,}<extra></extra>",
+    hovertemplate="<b>%{y}</b> at %{customdata}<br>Trips: %{z:,}<extra></extra>",
     colorbar=dict(title="Trips", tickformat=","),
 ))
 fig_heat.update_layout(title="Total Trips by Day and Hour")
@@ -150,7 +154,7 @@ plotly_layout_defaults(fig_season, height=360)
 st.plotly_chart(fig_season, use_container_width=True)
 
 callout(
-    "🌡 <strong>Summer</strong> dominates (~2.5–3× Winter). "
+    "🌡 <strong>Summer</strong> dominates. "
     "Casual riders are more seasonally sensitive — their share rises sharply in Summer "
     "and collapses in Winter."
 )

@@ -133,8 +133,6 @@ Remaining missing values are structurally expected: `end_station_id` (0.14%) and
 
 ### 4. Exploratory Data Analysis (`03_eda.ipynb`)
 
-### 4. Exploratory Data Analysis (`03_eda.ipynb`)
-
 All 12 EDA figures saved to `figures/`:
 
 | Figure | Description |
